@@ -70,6 +70,10 @@ $config = (new HttpServerConfig())
     ->setBrotliLevel(1)
     // Built-in worker pool — HttpServer::start() spawns the pool itself.
     ->setWorkers($workers)
+    // Arena handlers never touch Async\request_context(), so drop the
+    // per-request child async scope to save two allocations per request
+    // (HttpServerConfig::setRequestScope, true-async-server >= 0.7.2).
+    ->setRequestScope(false)
     // Run once per worker before its task loop. The class files contain
     // declarations that must live in every worker's compiler tables.
     ->setBootloader(static function (): void {
